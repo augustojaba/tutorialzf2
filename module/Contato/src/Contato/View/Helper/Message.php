@@ -5,58 +5,50 @@ namespace Contato\View\Helper;
 use Zend\View\Helper\AbstractHelper;
 use Zend\Mvc\Controller\Plugin\FlashMessenger as FlashMessenger;
 
-class Message extends AbstractHelper
-{
+class Message extends AbstractHelper {
 
     protected $flashMessenger;
     protected $message;
 
-    public function __construct(FlashMessenger $flashMessenger)
-    {
+    public function __construct(FlashMessenger $flashMessenger) {
         $this->setFlashMessenger($flashMessenger);
         $this->setMessage();
     }
 
-    public function __invoke()
-    {
+    public function __invoke() {
         return $this->renderHtml();
     }
 
-    public function renderHtml()
-    {
+    public function renderHtml() {
         $html = '';
         $message = $this->getMessage();
 
         if ($message) {
-            $key   = key($message);
+            $key = key($message);
             $html .= '<div id="alert-message">';
-                $html .= '<div class="'. $key . ' alert-block fade in">';
-                    $html .= '<button type="button" class="close" data-dismiss="alert">&times;</button>';
-                    $html .= $message[$key];
-                $html .= '</div>';
+            $html .= '<div class="' . $key . ' alert-block fade in">';
+            $html .= '<button type="button" class="close" data-dismiss="alert">&times;</button>';
+            $html .= $message[$key];
+            $html .= '</div>';
             $html .= '</div>';
         }
 
         return $html;
     }
 
-    public function getFlashMessenger()
-    {
+    public function getFlashMessenger() {
         return $this->flashMessenger;
     }
 
-    public function setFlashMessenger($flashMessenger)
-    {
+    public function setFlashMessenger($flashMessenger) {
         $this->flashMessenger = $flashMessenger;
     }
 
-    public function getMessage()
-    {
+    public function getMessage() {
         return $this->message;
     }
 
-    public function setMessage()
-    {
+    public function setMessage() {
         $flashMessenger = $this->getFlashMessenger();
 
         if ($flashMessenger->hasMessages()) {
@@ -79,4 +71,5 @@ class Message extends AbstractHelper
             $this->message = array('alert alert-danger' => array_shift($messageError));
         }
     }
+
 }

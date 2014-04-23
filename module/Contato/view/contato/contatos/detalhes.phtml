@@ -1,26 +1,27 @@
 <div class="panel panel-primary">
     <div class="panel-heading">
         <div class="panel-title">
-            Detalhes Contato ID <?php echo $this->id; ?>
+            Detalhes contato nome: <?php echo $this->escapeHtml($this->contato->nome); ?>
         </div>
     </div>
     <div class="panel-body">
         <dl class="dl-horizontal">
             <dt>Nome:</dt>
-            <dd><?php echo $this->form["nome"] ?></dd>
+            <dd><?php echo $this->escapeHtml($this->contato->nome) ?></dd>
             <dt>Telefone principal:</dt>
-            <dd><?php echo $this->form["telefone_principal"] ?></dd>
+            <dd><?php echo $this->escapeHtml($this->contato->telefone_principal) ?></dd>
             <dt>Telefone secundário:</dt>
-            <dd><?php echo $this->form["telefone_secundario"] ?></dd>
+            <dd><?php echo $this->escapeHtml($this->contato->telefone_secundario) ?></dd>
             <dt>Data de criação:</dt>
-            <dd><?php echo $this->form["data_criacao"] ?></dd>
+            <dd><?php echo $this->escapeHtml($this->contato->data_criacao) ?></dd>
             <dt>Data de atualização:</dt>
-            <dd><?php echo $this->form["data_atualizacao"] ?></dd>
+            <dd><?php echo $this->escapeHtml($this->contato->data_atualizacao) ?></dd>
         </dl>
     </div>
-    
+
     <div class="panel-footer">
-        <a href="<?php echo $this->url('contatos', array('action' => 'editar', 'id' => $this->id)); ?>" class="btn btn-warning btn-sm"> Editar contato </a>
+        
+        <a href="<?php echo $this->url('contatos', array('action' => 'editar', 'id' => $this->contato->id)); ?>" class="btn btn-warning btn-sm"> Editar contato </a>
         <a href="<?php echo $this->url('contatos'); ?>" class="btn btn-default btn-sm">Voltar</a>
     </div>
 </div>

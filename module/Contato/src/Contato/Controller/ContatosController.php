@@ -2,13 +2,16 @@
 
 namespace Contato\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
+use Zend\Mvc\Controller\AbstractActionController,
+    Zend\View\Model\ViewModel;
 
 class ContatosController extends AbstractActionController {
+    
+    protected $contatoTable;
 
     //GET /contatos
     public function indexAction() {
-        
+        return new ViewModel(array('contatos' => $this->getContatoTable()->fetchAll()));
     }
 
     //GET /contatos/novo
@@ -22,14 +25,14 @@ class ContatosController extends AbstractActionController {
 
         if ($request->isPost()) {
             $postData = $request->getPost()->toArray();
-            $formularioValido = false;
+            $formularioValido = true;
 
             if ($formularioValido) {
 
                 // lógica para inserção dos dados no banco de dados
-
+                
                 $this->flashMessenger()->addSuccessMessage("Contato criado com sucesso.");
-                return $this->redirect()->toRoute('contatos');
+                return $this->redirect()->toRoute('contatos', array('action' => 'detalhes', 'id' => 1));
             } else {
                 $this->flashMessenger()->addErrorMessage("Erro ao criar contato.");
 
@@ -46,18 +49,16 @@ class ContatosController extends AbstractActionController {
         if (!$id) {
             $this->flashMessenger()->addMessage("Contato não encontrado");
 
-            return $this->redirect()->toRoute('route');
+            return $this->redirect()->toRoute('contatos');
         }
 
-        $form = array(
-            'nome' => 'Augusto Alves',
-            "telefone_principal" => "(085) 8888-8888",
-            "telefone_secundario" => "(085) 9999-9999",
-            "data_criacao" => "16/04/2014",
-            "data_atualizacao" => "16/04/2014",
-        );
-
-        return array('id' => $id, 'form' => $form);
+        try {
+            //return new ViewModel(array('contato' => $this->getContatoTable()->find($id)));
+            return array('contato' => $this->getContatoTable()->find($id));
+        } catch (\Exception $ex) {
+            $this->flashMessenger()->addErrorMessage($ex->getMessage());
+            return $this->redirect()->toRoute('contatos');
+        }
     }
 
     //GET /contatos/editar/id
@@ -78,14 +79,13 @@ class ContatosController extends AbstractActionController {
         // 1 - solicitar serviço para pegar o model responsável pelo find
         // 2 - solicitar form com dados desse contato encontrado
         // formulário com dados preenchidos
-        $form = array(
-            'nome' => 'Augusto Alves',
-            "telefone_principal" => "(085) 8888-8888",
-            "telefone_secundario" => "(085) 8585-8585",
-        );
+        try {
+            return array('contato' => $this->getContatoTable()->find($id));
+        } catch (\Exception $ex) {
+            $this->flashMessenger()->addErrorMessage($ex->getMessage());
+            return $this->redirect()->toRoute('contatos');
+        }
 
-        // dados eviados para editar.phtml
-        return array('id' => $id, 'form' => $form);
     }
 
     // PUT /contatos/editar/id
@@ -106,9 +106,9 @@ class ContatosController extends AbstractActionController {
                 // 2 - editar dados no banco pelo model
                 // adicionar mensagem de sucesso
                 $this->flashMessenger()->addSuccessMessage("Contato editado com sucesso");
-
+                
                 // redirecionar para action detalhes
-                return $this->redirect()->toRoute('contatos', array("action" => "detalhes", "id" => $postData['id'],));
+                return $this->redirect()->toRoute('contatos', array("action" => "detalhes", "id" => $postData['id']));
             } else {
                 // adicionar mensagem de erro
                 $this->flashMessenger()->addErrorMessage("Erro ao editar contato");
@@ -138,6 +138,15 @@ class ContatosController extends AbstractActionController {
 
         // redirecionar para action index
         return $this->redirect()->toRoute('contatos');
+    }
+    
+    public function getContatoTable() {
+        
+        if(!$this->contatoTable) {
+            $this->contatoTable = $this->getServiceLocator()->get('ModelContato');
+        }
+        
+        return $this->contatoTable;
     }
 
 }
