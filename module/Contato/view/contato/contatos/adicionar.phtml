@@ -1,0 +1,45 @@
+<?php
+    $form->setAttribute('action', $this->url('contatos', array('action' => 'adicionar')));
+    $form->prepare();
+
+    echo $this->form()->openTag($form);
+    echo $this->formHidden($form->get('id'));
+    
+    echo $this->formCollection($form);
+?>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <div class="panel-title">
+            Novo Contato           
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="form-group">
+            <label for="inputNome" class="col-lg-3 col-md-3 control-label">Nome:</label>
+            <div class="col-lg-9 col-md-9">
+                <?php echo $this->formRow($form->get('nome')); ?>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="inputTelefonePrincipal" class="col-lg-3 col-md-3 control-label">Tel. Principal:</label>
+            <div class="col-lg-9  col-md-9">
+                <?php echo $this->formRow($form->get('telefone_principal')); ?>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="inputTelefoneSecundario" class="col-lg-3 col-md-3 control-label">Tel. Secundário:</label>
+            <div class="col-lg-9  col-md-9">
+                <?php echo $this->formRow($form->get('telefone_secundario')); ?>
+            </div>
+        </div>
+    </div>
+    <div class="panel-footer">
+        <?php echo $this->formSubmit($form->get('salvar_contato')); ?>
+        <a href="<?php echo $this->url('contatos'); ?>" class="btn btn-default">Voltar</a>
+    </div>
+    
+    <?php $this->form()->closeTag(); ?>
+</div>

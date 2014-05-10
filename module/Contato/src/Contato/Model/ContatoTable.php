@@ -45,5 +45,33 @@ class ContatoTable {
 
         return $row;
     }
+    
+    public function save(Contato $contato) {
+        $data = array(
+            'nome' => $contato->nome,
+            'telefone_principal' => $contato->telefone_principal,
+            'telefone_secundario' => $contato->telefone_secundario,
+            'data_criacao' => $contato->data_criacao,
+            'data_atualizacao' => $contato->data_atualizacao
+        );
+        
+        $id = (int) $contato->id;
+        
+        if($id == 0) {
+            $this->tableGateway->insert($data);
+            $id = $this->tableGateway->lastInsertValue;
+            return $id;
+        } else {
+            if($this->find($id)) {
+                $this->tableGateway->update($data, array('id' => $id));
+            } else {
+                throw new \Exception('Não existe contato com id: '.$id);
+            }
+        }
+    }
+    
+    public function deleteContato($id) {
+        $this->tableGateway->delete(array('id' => (int) $id));
+    }
 
 }

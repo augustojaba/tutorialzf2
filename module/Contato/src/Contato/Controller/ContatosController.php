@@ -3,10 +3,11 @@
 namespace Contato\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController,
-    Zend\View\Model\ViewModel;
+    Zend\View\Model\ViewModel,
+    Contato\View\Form\ContatoForm;
 
 class ContatosController extends AbstractActionController {
-    
+
     protected $contatoTable;
 
     //GET /contatos
@@ -14,31 +15,37 @@ class ContatosController extends AbstractActionController {
         return new ViewModel(array('contatos' => $this->getContatoTable()->fetchAll()));
     }
 
-    //GET /contatos/novo
-    public function novoAction() {
-        
-    }
-
-    //POST /contatos/adicionar
+    //GET POST /contatos/adicionar
     public function adicionarAction() {
         $request = $this->getRequest();
+        
+        $form = new ContatoForm();
+        $form->get('salvar_contato')->setValue('Criar contato');
 
         if ($request->isPost()) {
-            $postData = $request->getPost()->toArray();
-            $formularioValido = true;
+            $contato = new \Contato\Model\Contato();
+            $form->setInputFilter($contato->getInputFilter());
+            $form->setData($request->getPost());
 
-            if ($formularioValido) {
+            if ($form->isValid()) {
 
                 // lógica para inserção dos dados no banco de dados
+                $contato->exchangeArray($form->getData());
                 
-                $this->flashMessenger()->addSuccessMessage("Contato criado com sucesso.");
-                return $this->redirect()->toRoute('contatos', array('action' => 'detalhes', 'id' => 1));
+                $contato->data_criacao = date('Y-m-d H:i:s');
+
+                $id = $this->getContatoTable()->save($contato);
+
+                $this->flashMessenger()->addSuccessMessage("Contato de ID: $id foi criado com sucesso.");
+                return $this->redirect()->toRoute('contatos');
             } else {
                 $this->flashMessenger()->addErrorMessage("Erro ao criar contato.");
 
-                return $this->redirect()->toRoute('contatos', array('action' => 'novo'));
+                return $this->redirect()->toRoute('contatos', array('action' => 'adicionar'));
             }
         }
+        
+        return array('form' => $form);
     }
 
     //GET /contatos/detalhes/id
@@ -69,7 +76,7 @@ class ContatosController extends AbstractActionController {
         // se id = 0 ou não informado redirecione para contatos
         if (!$id) {
             // adicionar mensagem de erro
-            $this->flashMessenger()->addMessage("Contato não encotrado");
+            $this->flashMessenger()->addMessage("Contato não encontrado");
 
             // redirecionar para action index
             return $this->redirect()->toRoute('contatos');
@@ -85,7 +92,6 @@ class ContatosController extends AbstractActionController {
             $this->flashMessenger()->addErrorMessage($ex->getMessage());
             return $this->redirect()->toRoute('contatos');
         }
-
     }
 
     // PUT /contatos/editar/id
@@ -105,8 +111,10 @@ class ContatosController extends AbstractActionController {
                 // 1 - solicitar serviço para pegar o model responsável pela atualização
                 // 2 - editar dados no banco pelo model
                 // adicionar mensagem de sucesso
+
+
                 $this->flashMessenger()->addSuccessMessage("Contato editado com sucesso");
-                
+
                 // redirecionar para action detalhes
                 return $this->redirect()->toRoute('contatos', array("action" => "detalhes", "id" => $postData['id']));
             } else {
@@ -127,25 +135,27 @@ class ContatosController extends AbstractActionController {
         // se id = 0 ou não informado redirecione para contatos
         if (!$id) {
             // adicionar mensagem de erro
-            $this->flashMessenger()->addMessage("Contato não encotrado");
+            $this->flashMessenger()->addMessage("Contato não encontrado");
         } else {
             // aqui vai a lógica para deletar o contato no banco
             // 1 - solicitar serviço para pegar o model responsável pelo delete
             // 2 - deleta contato
             // adicionar mensagem de sucesso
+
+            $this->getContatoTable()->deleteContato($id);
             $this->flashMessenger()->addSuccessMessage("Contato de ID $id deletado com sucesso");
         }
 
         // redirecionar para action index
         return $this->redirect()->toRoute('contatos');
     }
-    
+
     public function getContatoTable() {
-        
-        if(!$this->contatoTable) {
+
+        if (!$this->contatoTable) {
             $this->contatoTable = $this->getServiceLocator()->get('ModelContato');
         }
-        
+
         return $this->contatoTable;
     }
 
